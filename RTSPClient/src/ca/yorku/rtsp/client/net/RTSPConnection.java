@@ -11,9 +11,10 @@ import ca.yorku.rtsp.client.exception.RTSPException;
 import ca.yorku.rtsp.client.model.Frame;
 import ca.yorku.rtsp.client.model.Session;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.DatagramPacket;
 import java.net.*;
+import java.util.Timer;
 
 /**
  * This class represents a connection with an RTSP server.
@@ -23,6 +24,19 @@ public class RTSPConnection {
     private static final int BUFFER_LENGTH = 0x10000;
 
     private Session session;
+    private Socket socket;
+
+    private DatagramPacket packet;
+    private DatagramSocket RTPsocket;
+
+    private DataInputStream inputStream;
+    private DataOutputStream outputStream;
+
+    private BufferedReader RTSPReader;
+    private BufferedWriter RTSPWriter;
+
+    private static int SeqNo = 0;
+    private Timer playtimer = new Timer();
 
     // TODO Add additional fields, if necessary
 
@@ -38,8 +52,22 @@ public class RTSPConnection {
     public RTSPConnection(Session session, String server, int port) throws RTSPException {
 
         this.session = session;
+        InetAddress ServerIPAddr = null;
+        try {
+            ServerIPAddr = InetAddress.getByName(server);
+        } catch (Exception e) {
+            //throw new RTSPException("Invalid Host");
+        }
 
-        // TODO
+        try {
+            socket = new Socket(ServerIPAddr, port);
+            RTSPReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            RTSPWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        } catch (Exception e) {
+            //e.printStackTrace();
+            throw new RTSPException("Invalid Host");
+        }
+
     }
 
     /**
@@ -55,8 +83,8 @@ public class RTSPConnection {
      *                       created, or if the server did not return a successful response.
      */
     public synchronized void setup(String videoName) throws RTSPException {
-
         // TODO
+
     }
 
     /**
@@ -82,6 +110,7 @@ public class RTSPConnection {
         @Override
         public void run() {
             // TODO
+
         }
 
     }
@@ -118,7 +147,16 @@ public class RTSPConnection {
      * connection, such as the RTP connection, if it is still open.
      */
     public synchronized void closeConnection() {
-        // TODO
+
+        try {
+            this.RTSPReader.close();
+            this.RTSPWriter.close();
+            this.RTPsocket.close();
+            socket.close();
+
+        } catch (Exception e) {
+            //System.out.println(e);
+        }
     }
 
     /**
@@ -128,8 +166,8 @@ public class RTSPConnection {
      * @return A Frame object.
      */
     public static Frame parseRTPPacket(DatagramPacket packet) {
-
-        // TODO
+        //Frame temp = new Frame(26, true, SeqNo, );
+        //SeqNo++;
         return null; // Replace with a proper Frame
     }
 
