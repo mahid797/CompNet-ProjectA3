@@ -13,6 +13,7 @@ import ca.yorku.rtsp.client.model.Session;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.*;
 
 /**
  * This class represents a connection with an RTSP server.
