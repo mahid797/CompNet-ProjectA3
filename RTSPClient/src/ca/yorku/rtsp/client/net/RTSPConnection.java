@@ -14,10 +14,6 @@ import ca.yorku.rtsp.client.model.Session;
 import java.io.*;
 import java.net.DatagramPacket;
 import java.net.*;
-<<<<<<< Updated upstream
-import java.util.Timer;
-=======
->>>>>>> Stashed changes
 
 /**
  * This class represents a connection with an RTSP server.
@@ -29,30 +25,17 @@ public class RTSPConnection {
     private Session session;
     private Socket socket;
 
-<<<<<<< Updated upstream
-    private DatagramPacket packet;
-    private DatagramSocket RTPsocket;
-
-    private DataInputStream inputStream;
-    private DataOutputStream outputStream;
-=======
     private DatagramPacket RTPPacket;
     private DatagramSocket RTP_Socket;
->>>>>>> Stashed changes
 
     private BufferedReader RTSPReader;
     private BufferedWriter RTSPWriter;
 
-<<<<<<< Updated upstream
-    private static int SeqNo = 0;
-    private Timer playtimer = new Timer();
-=======
 
     private int RTSP_SeqNo;
     private String video;
     private int sessionID;
     private int LOCAL_PORT;
->>>>>>> Stashed changes
 
     /**
      * Establishes a new connection with an RTSP server. No message is sent at this point, and no stream is set up.
@@ -66,31 +49,15 @@ public class RTSPConnection {
     public RTSPConnection(Session session, String server, int port) throws RTSPException {
 
         this.session = session;
-<<<<<<< Updated upstream
-        InetAddress ServerIPAddr = null;
-        try {
-            ServerIPAddr = InetAddress.getByName(server);
-        } catch (Exception e) {
-            //throw new RTSPException("Invalid Host");
-        }
-
-        try {
-            socket = new Socket(ServerIPAddr, port);
-=======
         RTSP_SeqNo = 0;
 
         try {
 
             socket = new Socket(server, port);
->>>>>>> Stashed changes
             RTSPReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             RTSPWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
         } catch (Exception e) {
-<<<<<<< Updated upstream
-            //e.printStackTrace();
-=======
->>>>>>> Stashed changes
             throw new RTSPException("Invalid Host");
         }
 
@@ -109,9 +76,6 @@ public class RTSPConnection {
      *                       created, or if the server did not return a successful response.
      */
     public synchronized void setup(String videoName) throws RTSPException {
-<<<<<<< Updated upstream
-        // TODO
-=======
 
         try {
             RTP_Socket = new DatagramSocket();
@@ -154,7 +118,6 @@ public class RTSPConnection {
 
         } catch (IOException e) {
         }
->>>>>>> Stashed changes
 
     }
 
@@ -167,10 +130,6 @@ public class RTSPConnection {
      *                       successful response.
      */
     public synchronized void play() throws RTSPException {
-<<<<<<< Updated upstream
-
-        // TODO
-=======
         RTSP_SeqNo++;
 
         String request_line1 = "PLAY " + video + " RTSP/1.0\n";
@@ -178,7 +137,7 @@ public class RTSPConnection {
         String request_line3 = "Session: " + sessionID + "\n";
 
         try {
-            
+
             RTSPWriter.write(request_line1);
             RTSPWriter.write(request_line2);
             RTSPWriter.write(request_line3);
@@ -197,8 +156,8 @@ public class RTSPConnection {
 
         }
         new RTPReceivingThread().start();
->>>>>>> Stashed changes
     }
+
 
     private class RTPReceivingThread extends Thread {
         /**
@@ -209,9 +168,6 @@ public class RTSPConnection {
          */
         @Override
         public void run() {
-<<<<<<< Updated upstream
-            // TODO
-=======
 
             byte[] buffer = new byte[BUFFER_LENGTH];
             RTPPacket = new DatagramPacket(buffer, buffer.length);
@@ -226,7 +182,6 @@ public class RTSPConnection {
                 //
             }
 
->>>>>>> Stashed changes
 
         }
 
@@ -240,15 +195,13 @@ public class RTSPConnection {
      *                       successful response.
      */
     public synchronized void pause() throws RTSPException {
-<<<<<<< Updated upstream
-=======
         RTSP_SeqNo++;
         String request_line1 = "PAUSE " + video + " RTSP/1.0\n";
         String request_line2 = "CSeq: " + RTSP_SeqNo + "\n";
         String request_line3 = "Session: " + sessionID + "\n";
 
         try {
-            
+
             RTSPWriter.write(request_line1);
             RTSPWriter.write(request_line2);
             RTSPWriter.write(request_line3);
@@ -266,9 +219,8 @@ public class RTSPConnection {
 
         } catch (IOException e1) {
             throw new RTSPException(e1);
->>>>>>> Stashed changes
 
-        // TODO
+        }
     }
 
     /**
@@ -277,15 +229,12 @@ public class RTSPConnection {
      * connection, and a further SETUP in the same connection should be accepted. Also this method can be called both
      * for a paused and for a playing stream, so the thread responsible for receiving RTP packets will also be
      * cancelled.
-     *
+     * movie1.Mjpeg
      * @throws RTSPException If there was an error sending or receiving the RTSP data, or if the server did not return a
      *                       successful response.
      */
     public synchronized void teardown() throws RTSPException {
 
-<<<<<<< Updated upstream
-        // TODO
-=======
         RTSP_SeqNo++;
         String request_line1 = "TEARDOWN " + video + " RTSP/1.0\n";
         String request_line2 = "CSeq: " + RTSP_SeqNo + "\n";
@@ -314,7 +263,6 @@ public class RTSPConnection {
 
         }
 
->>>>>>> Stashed changes
     }
 
     /**
@@ -326,10 +274,6 @@ public class RTSPConnection {
         try {
             this.RTSPReader.close();
             this.RTSPWriter.close();
-<<<<<<< Updated upstream
-            this.RTPsocket.close();
-=======
->>>>>>> Stashed changes
             socket.close();
 
         } catch (Exception e) {
@@ -337,10 +281,7 @@ public class RTSPConnection {
         }
     }
 
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
     /**
      * Parses an RTP packet into a Frame object.
      *
@@ -348,11 +289,6 @@ public class RTSPConnection {
      * @return A Frame object.
      */
     public static Frame parseRTPPacket(DatagramPacket packet) {
-<<<<<<< Updated upstream
-        //Frame temp = new Frame(26, true, SeqNo, );
-        //SeqNo++;
-        return null; // Replace with a proper Frame
-=======
         /*short tempByte = packet.getData()[1];
         boolean marker =(tempByte&(1<<0))!=0;
         int pt1 = (packet.getData()[1]&0b1111110000);
@@ -374,7 +310,6 @@ public class RTSPConnection {
         Frame frame = new Frame(payload_type, marker, sequence_number, time_stamp, packet.getData(), 12, packet.getLength()-12);
         System.out.println("test3 = " + frame.getPayloadType());
         return frame;
->>>>>>> Stashed changes
     }
 
     /**
@@ -386,10 +321,6 @@ public class RTSPConnection {
      */
     public RTSPResponse readRTSPResponse() throws IOException, RTSPException {
 
-<<<<<<< Updated upstream
-        // TODO
-        return null; // Replace with a proper RTSPResponse
-=======
         String first = RTSPReader.readLine();
         if (first == null)
             return null;
@@ -425,7 +356,7 @@ public class RTSPConnection {
         rtspResponse.addHeaderValue("Session",String.valueOf(sessID));
 
         return rtspResponse;
->>>>>>> Stashed changes
     }
+
 
 }
