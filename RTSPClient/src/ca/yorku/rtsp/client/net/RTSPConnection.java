@@ -229,7 +229,7 @@ public class RTSPConnection {
      * connection, and a further SETUP in the same connection should be accepted. Also this method can be called both
      * for a paused and for a playing stream, so the thread responsible for receiving RTP packets will also be
      * cancelled.
-     * movie1.Mjpeg
+     *
      * @throws RTSPException If there was an error sending or receiving the RTSP data, or if the server did not return a
      *                       successful response.
      */
@@ -281,34 +281,31 @@ public class RTSPConnection {
         }
     }
 
-
     /**
      * Parses an RTP packet into a Frame object.
-     *
+     *movie1.Mjpeg
      * @param packet the byte representation of a frame, corresponding to the RTP packet.
      * @return A Frame object.
      */
     public static Frame parseRTPPacket(DatagramPacket packet) {
-        /*short tempByte = packet.getData()[1];
-        boolean marker =(tempByte&(1<<0))!=0;
-        int pt1 = (packet.getData()[1]&0b1111110000);
-        byte pt = (byte) (pt1 >>> 4);
-        short sn = (short) ((packet.getData()[2]<<8) | (packet.getData()[3]));
-        int ts = (packet.getData()[4] << 24 | (packet.getData()[5] & 0xFF) << 16 | (packet.getData()[6] & 0xFF) << 8 | (packet.getData()[7] & 0xFF));*/
 
-        int tempByte = packet.getData()[1];
-        boolean marker =(tempByte&(1<<0))!=0;
-        byte payload_type = (byte) (packet.getData()[1] & 0x0fffffff);
-        short sequence_number = (short) ((packet.getData()[2]<<8) | (packet.getData()[3]));
+        int tempByte = (packet.getData()[1] & 0xff) >> 7;
+
+        boolean marker;
+
+        if(tempByte == 1){
+            marker = true;
+        }
+        else{
+            marker = false;
+        }
+
+        int payload_type = (packet.getData()[1] & 127);
+        short sequence_number = (short) ((packet.getData()[2] << 8) | (packet.getData()[3] & 0xFF));
         int time_stamp = (packet.getData()[4] << 24 | (packet.getData()[5] & 0xFF) << 16 | (packet.getData()[6] & 0xFF) << 8 | (packet.getData()[7] & 0xFF));
 
-        System.out.println("test = " + Long.toString(packet.getData()[1],2));
-        //System.out.println("test0 = " + Integer.toString(pt1,2));
-        System.out.println("test1 = " + Long.toString(payload_type&0x0fffffff,2));
-        System.out.println("test2 = " + (packet.getData()[1]&0x0fffffff));
+        Frame frame = new Frame((byte) payload_type, marker, sequence_number, time_stamp, packet.getData(), 12, packet.getLength()-12);
 
-        Frame frame = new Frame(payload_type, marker, sequence_number, time_stamp, packet.getData(), 12, packet.getLength()-12);
-        System.out.println("test3 = " + frame.getPayloadType());
         return frame;
     }
 
@@ -336,8 +333,7 @@ public class RTSPConnection {
         int sessID = 0;
         String header;
 
-        while ((header = RTSPReader.readLine()) != null
-                && !header.equals("")) {
+        while ((header = RTSPReader.readLine()) != null && !header.equals("")) {
 
             String[] headerSplit = header.split(":", 2);
             if (headerSplit.length != 2)
